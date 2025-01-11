@@ -4,34 +4,44 @@
 import pygame
 from constants import *
 import player
+import asteroid
+import asteroidfield
 
 def main():
     
     #Variables
     updatables = pygame.sprite.Group()
     drawables  = pygame.sprite.Group()
+    asteroids = pygame.sprite.Group()
     player.Player.containers = (updatables, drawables)
+    asteroid.Asteroid.containers = (asteroids, updatables, drawables)
+    asteroidfield.AsteroidField.containers = (updatables)
     x = SCREEN_WIDTH / 2
     y = SCREEN_HEIGHT / 2
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     delta_time_value = 0
-    
+    running = True
     
     #objects
     main_clock = pygame.time.Clock()
     main_player = player.Player(x, y)
+    main_field = asteroidfield.AsteroidField()
    
     #function calls
     pygame.init()
         
     #Main Loop
-    while True:
+    while running:
         
         #deltatime
         tick_value = main_clock.tick(60)
         delta_time_value = tick_value / 1000
         
         #Inputs
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            running = False
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
@@ -39,6 +49,13 @@ def main():
         #update
         for updatable in updatables:
             updatable.update(delta_time_value)
+            
+        #collision
+        for aster in asteroids:
+            if aster.is_collided(main_player):
+                print("Game Over!")
+                running = False
+        
         
         #draw
         pygame.Surface.fill(screen, "#000000")
@@ -47,6 +64,8 @@ def main():
         
         #refresh
         pygame.display.flip()
+        
+    pygame.quit()
 
 
 
